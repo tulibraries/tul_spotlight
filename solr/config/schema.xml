@@ -206,6 +206,9 @@
   <copyField source="full_title_tesim" dest="full_title_ng" maxChars="3000"/>
   <copyField source="*_tesim" dest="all_text_timv" maxChars="3000"/>
 
+  <!-- Thumbnail Workaround -->
+  <copyField source="full_image_url_ssm" dest="thumbnail_url_ssm"/>
+
   <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" />
     <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>    

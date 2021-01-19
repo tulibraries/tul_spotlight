@@ -40,6 +40,7 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  gem "pry-rails"
 end
 
 group :test do
@@ -57,6 +58,11 @@ gem 'blacklight', ' ~> 7.0'
 gem 'blacklight-spotlight', github: 'projectblacklight/spotlight'
 group :development, :test do
   gem 'solr_wrapper', '>= 0.3'
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+  gem "vcr"
+  gem "rails-controller-testing"
+  gem "webmock"
 end
 
 gem 'rsolr', '>= 1.0', '< 3'

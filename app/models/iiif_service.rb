@@ -6,13 +6,9 @@ class IiifService < Spotlight::Resources::IiifService
     @manifests ||= if manifest?
                      [create_iiif_manifest(object)]
                    elsif object.respond_to? :manifests
-                     result = object.manifests.map { |manifest|
+                     object.manifests.map { |manifest|
                        create_iiif_manifest(manifest)
                      }
-                     if collection?
-                       result << create_iiif_manifest(object)
-                     end
-                     result
                    else
                      build_collection_manifest.to_a
                    end
@@ -37,5 +33,13 @@ class IiifService < Spotlight::Resources::IiifService
       next_page_url = object.to_ordered_hash.dig(pointer, "@id")
       yield self.class.new(next_page_url) if next_page_url
     end
+  end
+
+  def total
+    object['total']
+  end
+
+  def self.get_total(url)
+    new(url).total
   end
 end

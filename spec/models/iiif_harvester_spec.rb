@@ -19,6 +19,15 @@ describe ::IiifHarvester do
         expect(enum.size).to eq 142
       end
     end
+
+    it 'captures CDM metadata in the solr document' do
+      VCR.use_cassette("p16002coll4_manifests", :allow_playback_repeats => true) do
+        enum = subject.documents_to_index
+        first_doc = enum.to_a[0]
+        expect(first_doc['full_title_tesim']).to eq '[Letter of 1866 April 30]'
+        expect(first_doc[:full_image_url_ssm]).to eq 'https://cdm16002.contentdm.oclc.org/digital/iiif/p16002coll4/0/full/full/0/default.jpg'
+      end
+    end
   end
 
   describe 'paginated collections' do

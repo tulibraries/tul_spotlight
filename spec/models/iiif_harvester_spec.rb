@@ -12,7 +12,7 @@ describe ::IiifHarvester do
     let(:url) { 'https://digital.library.temple.edu/iiif/info/p16002coll4/manifest.json' }
 
     it 'returns an Enumerator of all the solr documents' do
-      VCR.use_cassette("p16002coll4_manifests", :allow_playback_repeats => true) do
+      VCR.use_cassette("p16002coll4_manifests") do
         enum = subject.documents_to_index
         expect(enum).to be_a(Enumerator)
         expect(enum.count).to eq 142
@@ -21,7 +21,7 @@ describe ::IiifHarvester do
     end
 
     it 'captures CDM metadata in the solr document' do
-      VCR.use_cassette("p16002coll4_manifests", :allow_playback_repeats => true) do
+      VCR.use_cassette("p16002coll4_manifests") do
         enum = subject.documents_to_index
         first_doc = enum.to_a[0]
         expect(first_doc['full_title_tesim']).to eq '[Letter of 1866 April 30]'
@@ -36,7 +36,7 @@ describe ::IiifHarvester do
     let(:url) { 'https://digital.library.temple.edu/iiif/info/p16002coll2/manifest.json' }
 
     it 'returns an Enumerator of all the solr documents' do
-      VCR.use_cassette("p16002coll2_manifests", :allow_playback_repeats => true) do
+      VCR.use_cassette("p16002coll2_manifests") do
         expect(subject.documents_to_index).to be_a(Enumerator)
         expect(subject.documents_to_index.count).to eq 2314
       end

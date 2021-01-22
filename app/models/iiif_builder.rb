@@ -5,11 +5,11 @@
 class IiifBuilder < Spotlight::Resources::IiifBuilder
 
   alias_method :documents_to_index_orig, :documents_to_index
-  attr_accessor :total
+
+  delegate :total, to: :resource
 
   def documents_to_index
-    @total ||= 1
-    return to_enum(:documents_to_index_orig) { @total } unless block_given?
+    return to_enum(:documents_to_index_orig) { total } unless block_given?
     documents_to_index_orig.call(&block)
   end
 end

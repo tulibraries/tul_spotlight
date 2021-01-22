@@ -27,10 +27,6 @@ class IiifService < Spotlight::Resources::IiifService
     object['total']
   end
 
-  def self.get_total(url)
-    new(url).total
-  end
-
   def build_collection_manifest
     return to_enum(:build_collection_manifest) unless block_given?
 

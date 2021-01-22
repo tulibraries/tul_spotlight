@@ -6,13 +6,19 @@ class IiifHarvester < Spotlight::Resources::IiifHarvester
 
   self.document_builder_class = ::IiifBuilder
 
-  def iiif_manifests
-    @iiif_manifests ||= ::IiifService.parse(url)
+  # We don't use the IiifService.parse method because
+  # we want to get the total for the set before we start
+  # retrieving all the pages
+
+  def iiif_service
+    @iiif_service ||= ::IiifService.new(url)
   end
 
-  def document_builder
-    builder = super
-    builder.total = ::IiifService.get_total(url)
-    builder
+  def iiif_manifests
+    @iiif_manifests ||= ::IiifService.recursive_manifests(iiif_service)
+  end
+
+  def total
+    iiif_service.total
   end
 end

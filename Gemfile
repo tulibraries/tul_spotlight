@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.7.2'
+ruby '2.7.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 6.0.3', '>= 6.0.3.4'
@@ -78,3 +78,4 @@ gem 'sitemap_generator'
 gem 'blacklight-gallery', '~> 1.1'
 gem 'blacklight-oembed', '~> 1.0'
 gem 'devise_invitable'
+gem "mimemagic", "0.3.8"

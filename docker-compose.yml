@@ -1,0 +1,33 @@
+version: "3.2"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: .docker/app/Dockerfile
+    environment:
+      RAILS_ENV: development
+      BUNDLE_PATH: vendor/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - solr
+    environment:
+      - SOLR_URL # Set via environment variable or use default defined in .env file
+      - RAILS_VERSION # Set via environment variable or use default defined in .env file
+
+  solr:
+    environment:
+      - SOLR_PORT # Set via environment variable or use default defined in .env file
+      - SOLR_VERSION # Set via environment variable or use default defined in .env file
+    build:
+      context: .
+      dockerfile: .docker/solr/Dockerfile.solr
+    ports:
+      - "${SOLR_PORT}:8983"
+    command:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - blacklight-core
+      - /opt/solr/conf
+      - "-Xms256m"
+      - "-Xmx512m"

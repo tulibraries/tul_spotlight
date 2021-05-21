@@ -27,6 +27,10 @@ RUN apk add -U --no-cache \
     yarn install --check-files && \
     bundle exec rails assets:precompile && \
     yarn cache clean && \
+    apk del build-dependencies && \
+    rm -rf node_modules/* && \
+    rm -rf tmp/* && \
+    rm -rf /var/cache/apk/ && \
     chown nobody -R /app/db && \
     chown nobody -R /app/tmp && \
     chown nobody -R /app/log

@@ -12,7 +12,8 @@ RUN apk add -U --no-cache \
       bash=5.1.0-r0 \
       libxslt=1.1.34-r0 \
       tzdata=2021a-r0 \
-      shared-mime-info=2.0-r0 && \
+      shared-mime-info=2.0-r0 \
+      sqlite-libs=3.34.1-r0 && \
     apk add -U --no-cache --virtual build-dependencies \
       git=2.30.2-r0 \
       build-base=0.5-r2 \
@@ -27,10 +28,9 @@ RUN apk add -U --no-cache \
     yarn install --check-files && \
     bundle exec rails assets:precompile && \
     yarn cache clean && \
-    apk del build-dependencies && \
-    rm -rf node_modules/* && \
     rm -rf tmp/* && \
     rm -rf /var/cache/apk/ && \
+    chown nobody /app/config/master.key && \
     chown nobody -R /app/db && \
     chown nobody -R /app/tmp && \
     chown nobody -R /app/log

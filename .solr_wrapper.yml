@@ -3,3 +3,7 @@
 collection:
   dir: solr/config/
   name: blacklight-core
+  persist: true
+persist: true
+instance_dir: tmp/solr/
+download_dir: tmp/

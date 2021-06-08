@@ -21,7 +21,6 @@ RUN apk add -U --no-cache \
       sqlite-dev=3.34.1-r0 \
       nodejs=14.16.1-r1 \
       yarn=1.22.10-r0 && \
-    gem update --system && \
     gem install bundler:2.2.17 && \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \

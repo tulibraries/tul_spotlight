@@ -24,11 +24,14 @@ RUN apk add -U --no-cache \
     gem update --system && \
     gem install bundler:2.2.17 && \
     bundle config build.nokogiri --use-system-libraries && \
-    bundle install && \
-    yarn install --check-files && \
-    bundle exec rails assets:precompile && \
-    yarn cache clean && \
+    bundle config set --local without "development test" && \
+    bundle install --jobs=8 && \
+    find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
+    find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
+    RAILS_ENV=production bundle exec rails assets:precompile && \
+    rm -rf node_modules && \
     rm -rf tmp/* && \
+    apk del build-dependencies && \
     rm -rf /var/cache/apk/ && \
     chown nobody /app/config/master.key && \
     chown nobody -R /app/db && \

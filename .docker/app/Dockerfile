@@ -7,6 +7,7 @@ COPY . .
 USER root
 
 ARG SECRET_KEY_BASE
+ARG RAILS_MASTER_KEY
 
 RUN apk add -U --no-cache \
       bash=5.1.0-r0 \

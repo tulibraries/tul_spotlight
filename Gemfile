@@ -80,4 +80,4 @@ gem 'openseadragon', '>= 0.2.0'
 gem 'blacklight-oembed', '~> 1.0'
 gem 'devise_invitable'
 gem "mimemagic", "0.3.8"
-gem "carrierwave", "~> 2.1.1"
+gem "carrierwave", "~> 2.2"

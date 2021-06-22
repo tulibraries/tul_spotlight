@@ -7,7 +7,7 @@ VERSION ?= $(DOCKER_IMAGE_VERSION)
 IMAGE ?= tulibraries/spotlight
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
-RAILS_MASTER_KEY ?= $(SPOTLIGHT_MASTER_KEY)
+RAILS_MASTER_KEY ?= $(SECRET_KEY_BASE)
 CI ?= false
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
 		-e "K8=yes" \

@@ -30,9 +30,11 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "SOLR_URL=$(SOLR_URL)" \
     --rm -it
 
-solrurl:
-	@echo $(SOLR_HOST)
-	@echo $(SOLR_URL)
+show_env:
+	@echo "SOLR_HOST: $(SOLR_HOST)"
+	@echo "SOLR_URL: $(SOLR_URL)"
+	@echo "DB_HOST: $(SPOTLIGHT_DB_HOST)"
+	@echo "RAILS_MASTER_KEY: $(RAILS_MASTER_KEY)"
 
 build: pull_db build_solr build_app
 
@@ -61,11 +63,6 @@ build_solr:
 		--no-cache .
 
 init_data: run_solr run_db
-
-rm_data:
-	-docker stop solr db
-
-reset_data: rm_data inir_data
 
 run_app:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
@@ -118,18 +115,21 @@ stop_db:
 stop_solr:
 	-docker stop solr
 
-down: down_app down_db down_solr
+reset_data: reset_db reset_solr
 
-down_app:
-	-docker stop spotlight
-	@docker rm spotlight
+reset_db: down_db run_db
 
-down_db:
-	-docker stop db 
+reset_solr: down_solr run_solr
+
+down_all: down_app down_db down_solr
+
+down_app: stop_app
+	@docker rm app
+
+down_db: stop_db
 	@docker rm db 
 
-down_solr:
-	-docker stop solr
+down_solr: stop_db
 	@docker rm solr
 
 lint:

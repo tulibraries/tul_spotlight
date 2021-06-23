@@ -4,7 +4,7 @@ export #exports the .env variables
 
 #Set DOCKER_IMAGE_VERSION in the .env file OR by passing in
 VERSION ?= $(DOCKER_IMAGE_VERSION)
-IMAGE ?= tulibraries/spotlight
+IMAGE ?= tulibraries/tul-spotlight
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
 RAILS_MASTER_KEY ?= $(SECRET_KEY_BASE)
@@ -17,7 +17,8 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
 		--rm -it
 
 build:
-	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+	@docker build --build-arg SECRET_KEY_BASE=$(SECRET_KEY_BASE) \
+		--build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \

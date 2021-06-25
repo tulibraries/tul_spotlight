@@ -13,6 +13,7 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
 		-e "K8=yes" \
 		-e "RAILS_ENV=production" \
 		-e "RAILS_MASTER_KEY=$(RAILS_MASTER_KEY)" \
+		-e "SECRET_KEY_BASE=$(SECRET_KEY_BASE)" \
 		-e "RAILS_SERVE_STATIC_FILES=yes" \
 		--rm -it
 

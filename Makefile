@@ -6,6 +6,7 @@ export #exports the .env variables
 VERSION ?= $(DOCKER_IMAGE_VERSION)
 IMAGE ?= tulibraries/tul-spotlight
 SOLR_IMAGE ?= tulibraries/tul-solr
+SOLR_URL ?= http://solr:8983/solr/blacklight-core	
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
 RAILS_MASTER_KEY ?= $(SECRET_KEY_BASE)
@@ -16,6 +17,7 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
 		-e "RAILS_MASTER_KEY=$(RAILS_MASTER_KEY)" \
 		-e "SECRET_KEY_BASE=$(SECRET_KEY_BASE)" \
 		-e "RAILS_SERVE_STATIC_FILES=yes" \
+		-e "SOLR_URL=$(SOLR_URL)" \
 		--rm -it
 
 build:
@@ -26,16 +28,23 @@ build:
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
+buildsolr:
+	@docker build \
+		--tag $(HARBOR)/$(SOLR_IMAGE):$(VERSION) \
+		--tag $(HARBOR)/$(SOLR_IMAGE):latest \
+		--file .docker/solr/Dockerfile.solr \
+		--no-cache .
+
 run:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
-solrup:
+runsolr:
 	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
 
-solrdown:
+stopsolr:
 	@docker stop solr
 	@docker rm solr
 

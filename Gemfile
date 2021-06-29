@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.7.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 6.0.3.7"
+gem 'rails', '~> 6.0.3', '>= 6.0.3.7'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
 # Use Puma as the app server
@@ -12,7 +12,7 @@ gem 'puma', '~> 4.3.8'
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem 'webpacker', '~> 5.0'
+gem 'webpacker', '~> 4.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -80,4 +80,5 @@ gem 'openseadragon', '>= 0.2.0'
 gem 'blacklight-oembed', '~> 1.0'
 gem 'devise_invitable'
 gem "mimemagic", "0.3.8"
-gem "carrierwave", "~> 2.2"
+gem "carrierwave", "2.1.1"
+gem "nokogiri", "1.11.4"

@@ -3,7 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.4'
 
-gem 'rails', '~> 6.0.3', '>= 6.0.3.7'
+gem 'rails', '~> 6.0.4', '>= 6.0.4.1'
 gem "mysql2", "~> 0.5.3"
 gem 'puma', '~> 4.3.8'
 gem 'sass-rails', '>= 6'
@@ -42,11 +42,6 @@ gem 'blacklight', ' ~> 7.0'
 gem 'blacklight-spotlight', github: 'projectblacklight/spotlight'
 group :development, :test do
   gem 'solr_wrapper', '>= 0.3'
-  gem 'rspec-rails'
-  gem 'factory_bot_rails'
-  gem "vcr"
-  gem "rails-controller-testing"
-  gem "webmock"
 end
 
 gem 'rsolr', '>= 1.0', '< 3'
@@ -63,7 +58,8 @@ gem 'blacklight-gallery', '~> 3.0'
 gem 'openseadragon', '>= 0.2.0'
 gem 'blacklight-oembed', '~> 1.0'
 gem 'devise_invitable'
+# Additional Gems for uploading assets
 gem "mimemagic", "0.3.8"
-gem "carrierwave", "2.1.1"
-gem "nokogiri", "1.11.4"
+gem "carrierwave", "2.2.2"
+gem "nokogiri", "1.12.4"
 gem "addressable", "2.8.0"

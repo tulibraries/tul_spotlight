@@ -7,7 +7,7 @@ VERSION ?= $(DOCKER_IMAGE_VERSION)
 IMAGE ?= tulibraries/spotlight
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
-RAILS_MASTER_KEY ?= $(SPOTLIGHT_MASTER_KEY)
+RAILS_MASTER_KEY ?= $(SECRET_KEY_BASE)
 CI ?= false
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
 		-e "K8=yes" \
@@ -39,12 +39,6 @@ shell:
 		$(DEFAULT_RUN_ARGS) \
 		--entrypoint=sh --user=root \
 		$(HARBOR)/$(IMAGE):$(VERSION)
-
-load-data:
-	@docker run --name=spotlight-sync\
-		--entrypoint=/bin/sh\
-		$(DEFAULT_RUN_ARGS) \
-		$(HARBOR)/$(IMAGE):$(VERSION) -c 'rails sync:pressworks:all[press.xml]'
 
 scan:
 	@if [ $(CLEAR_CACHES) == yes ]; \

@@ -15,7 +15,6 @@ services:
       - SOLR_URL # Set via environment variable or use default defined in .env file
       - RAILS_VERSION # Set via environment variable or use default defined in .env file
       - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
-      - SECRET_KEY_BASE # Set via environment variable or use default defined in .env file
     entrypoint:
       - ruby
       - /app/bin/app-start.rb

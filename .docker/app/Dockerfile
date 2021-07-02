@@ -7,7 +7,6 @@ COPY . .
 USER root
 
 ARG RAILS_MASTER_KEY
-ARG SECRET_KEY_BASE
 
 RUN apk add -U --no-cache \
       bash=5.1.0-r0 \
@@ -28,7 +27,7 @@ RUN apk add -U --no-cache \
     bundle install --jobs=8 && \
     find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
     find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
-    RAILS_ENV=production SECRET_KEY_BASE=$SECRET_KEY_BASE RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \
+    RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \
     rm -rf node_modules && \
     rm -rf /var/cache/apk/ && \
     chown nobody -R /app/db && \

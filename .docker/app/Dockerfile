@@ -9,17 +9,17 @@ USER root
 ARG RAILS_MASTER_KEY
 
 RUN apk add -U --no-cache \
-      bash=5.1.0-r0 \
-      libxslt=1.1.34-r0 \
+      bash=5.1.4-r0 \
+      libxslt=1.1.34-r1 \
       tzdata=2021a-r0 \
-      shared-mime-info=2.0-r0 \
-      sqlite-libs=3.34.1-r0 && \
+      shared-mime-info=2.1-r0 \
+      sqlite-libs=3.35.5-r0 && \
     apk add -U --no-cache --virtual build-dependencies \
-      git=2.30.2-r0 \
+      git=2.32.0-r0 \
       build-base=0.5-r2 \
-      libxslt-dev=1.1.34-r0 \
-      sqlite-dev=3.34.1-r0 \
-      nodejs=14.16.1-r1 \
+      libxslt-dev=1.1.34-r1 \
+      sqlite-dev=3.35.5-r0 \
+      nodejs=14.17.1-r0 \
       yarn=1.22.10-r0 && \
     gem install bundler:2.2.17 && \
     bundle config build.nokogiri --use-system-libraries && \

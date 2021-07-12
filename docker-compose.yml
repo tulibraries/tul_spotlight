@@ -16,8 +16,7 @@ services:
       - RAILS_VERSION # Set via environment variable or use default defined in .env file
       - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
     entrypoint:
-      - ruby
-      - /app/bin/app-start.rb
+      - ".docker/app/entrypoint.sh"
 
   solr:
     environment:

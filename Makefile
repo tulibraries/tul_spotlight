@@ -10,9 +10,17 @@ SOLR_VERSION ?= 8.3.0
 SOLR_URL ?= http://solr:8983/solr/blacklight-core	
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
-CI ?= false
+CI ?=
+SPOTLIGHT_DB_HOST = host.docker.internal
+SPOTLIGHT_DB_NAME ?= tupress
+SPOTLIGHT_DB_USER ?= root false
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
 		-e "K8=yes" \
+ 		-e "DB_HOST=$(SPOTLIGHT_DB_HOST)" \
+ 		-e "DB_NAME=$(SPOTLIGHT_DB_NAME)" \
+ 		-e "DB_USER=$(SPOTLIGHT_DB_USER)" \
+ 		-e "DB_PASSWORD=$(SPOTLIGHT_DB_PASSWORD)" \
+ 		-e "DB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD)" \
 		-e "RAILS_ENV=production" \
 		-e "RAILS_MASTER_KEY=$(RAILS_MASTER_KEY)" \
 		-e "RAILS_SERVE_STATIC_FILES=yes" \
@@ -26,6 +34,9 @@ build:
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
+pull_db:
+	@docker pull bitnami/mariadb:latest
+
 build_solr:
 	@docker build \
 		--tag $(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION) \
@@ -38,9 +49,17 @@ run:
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
+run_db:
+	@docker run --name=db -p 127.0.0.1:3306:3306 \
+		-e MARIADB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD) \
+		-d bitnami/mariadb:latest
+
 run_solr:
 	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
+
+stop_db:
+	@docker stop db 
 
 start_solr:
 	@docker start solr

@@ -5,6 +5,8 @@ require 'i18n/backend/fallbacks'
 
 Translation = I18n::Backend::ActiveRecord::Translation
 
+begin
+
 if Translation.table_exists?
   ##
   # Sets up the new Spotlight Translation backend, backed by ActiveRecord. To
@@ -18,4 +20,9 @@ if Translation.table_exists?
   I18n::Backend::Simple.include I18n::Backend::Fallbacks
 
   I18n.backend = I18n::Backend::Chain.new(I18n.backend, I18n::Backend::Simple.new)
+end
+
+rescue Mysql2::Error::ConnectionError
+  puts "*** MySQL Connection Error when performing asset precompile"
+  puts "Will not pre-compile translations"
 end

@@ -10,7 +10,7 @@ SOLR_VERSION ?= 8.3.0
 SOLR_URL ?= http://solr:8983/solr/blacklight-core	
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
-CI ?=
+CI ?= false
 SPOTLIGHT_DB_HOST ?= host.docker.internal
 SPOTLIGHT_DB_NAME ?= tul_spotlight
 SPOTLIGHT_DB_USER ?= root
@@ -45,11 +45,6 @@ build_solr:
 		--tag $(HARBOR)/$(SOLR_IMAGE):latest \
 		--file .docker/solr/Dockerfile.solr \
 		--no-cache .
-
-run_dev:
-	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
-		$(DEFAULT_RUN_ARGS) \
-		$(HARBOR)/$(IMAGE):$(VERSION)
 
 run:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \

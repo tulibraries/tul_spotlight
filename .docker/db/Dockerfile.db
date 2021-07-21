@@ -1,5 +1,0 @@
-FROM harbor.k8s.temple.edu/tulibraries/tul-solr:0.0.1
-COPY solr/conf /opt/solr/conf
-
-ENTRYPOINT ["solr-precreate", "blacklight-core", "/opt/solr/conf",  "-Xms256m", "-Xmx512m"]
-CMD ["solr-foreground"]

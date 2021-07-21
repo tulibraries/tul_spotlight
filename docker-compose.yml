@@ -1,23 +1,18 @@
 version: "3.2"
 services:
-  web:
-    build:
-      context: .
-      dockerfile: .docker/app/Dockerfile
+  db:
+    image: mariadb
+    restart: always
     environment:
-      RAILS_ENV: production
-      BUNDLE_PATH: vendor/bundle
+      MYSQL_HOST: 'db'
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_USERNAME: 'root'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_DATABASE: 'tul_spotlight'
     ports:
-      - "3000:3000"
-    depends_on:
-      - solr
-    environment:
-      - SOLR_URL # Set via environment variable or use default defined in .env file
-      - RAILS_VERSION # Set via environment variable or use default defined in .env file
-      - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
-    entrypoint:
-      - ".docker/app/entrypoint.sh"
-
+      - "3306:3306"
+    volumes:
+      - ../tmp/db:/var/lib/mysql
   solr:
     environment:
       - SOLR_PORT # Set via environment variable or use default defined in .env file
@@ -34,3 +29,25 @@ services:
       - /opt/solr/conf
       - "-Xms256m"
       - "-Xmx512m"
+  web:
+    build:
+      context: .
+      dockerfile: .docker/app/Dockerfile.dev
+    environment:
+      RAILS_ENV: production
+    ports:
+      - "3000:3000"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    depends_on:
+      - solr
+    environment:
+      - SOLR_URL # Set via environment variable or use default defined in .env file
+      - RAILS_VERSION # Set via environment variable or use default defined in .env file
+      - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
+      - BUNDLE_PATH # Set via environment variable or use default defined in .env file
+    entrypoint:
+      - "/usr/bin/entrypoint.sh"
+    command: sleep infinity

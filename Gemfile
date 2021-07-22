@@ -66,3 +66,4 @@ gem 'devise_invitable'
 gem "mimemagic", "0.3.8"
 gem "carrierwave", "2.1.1"
 gem "nokogiri", "1.11.4"
+gem "addressable", "2.8.0"

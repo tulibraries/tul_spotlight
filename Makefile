@@ -36,6 +36,13 @@ build:
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
+build_dev:
+	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--tag $(IMAGE):$(VERSION)-dev \
+		--tag $(IMAGE):dev \
+		--file .docker/app/Dockerfile.dev \
+		--no-cache .
+
 pull_db:
 	@docker pull bitnami/mariadb:latest
 
@@ -51,6 +58,12 @@ run:
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
+run_dev:
+	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
+		$(DEFAULT_RUN_ARGS) \
+		--mount type=bind,source=/Users/skng/Projects/spotlight/temple_spotlight,target=/app \
+		$(IMAGE):dev sleep infinity
+
 run_db:
 	@docker run --name=db -d -p 127.0.0.1:3306:3306 \
 	  -e MARIADB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD) \
@@ -59,6 +72,12 @@ run_db:
 run_solr:
 	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
+
+shell_dev:
+	@docker exec -it spotlight-dev bash -l
+
+stop_dev:
+	@docker stop spotlight-dev
 
 stop:
 	@docker stop spotlight

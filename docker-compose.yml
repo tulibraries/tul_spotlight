@@ -8,7 +8,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - tmp/db:/var/lib/mysql
+      - ./tmp/db:/var/lib/mysql
   solr:
     environment:
       - SOLR_PORT # Set via environment variable or use default defined in .env file

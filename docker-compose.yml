@@ -4,15 +4,11 @@ services:
     image: mariadb
     restart: always
     environment:
-      MYSQL_HOST: 'db'
       MYSQL_ROOT_PASSWORD: "password"
-      MYSQL_USERNAME: 'root'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_DATABASE: 'tul_spotlight'
     ports:
       - "3306:3306"
     volumes:
-      - ../tmp/db:/var/lib/mysql
+      - tmp/db:/var/lib/mysql
   solr:
     environment:
       - SOLR_PORT # Set via environment variable or use default defined in .env file
@@ -25,16 +21,16 @@ services:
     command:
       - docker-entrypoint.sh
       - solr-precreate
-      - blacklight-core
+      - tul_spotlight
       - /opt/solr/conf
       - "-Xms256m"
       - "-Xmx512m"
   web:
     build:
       context: .
-      dockerfile: .docker/app/Dockerfile.dev
-    environment:
-      RAILS_ENV: production
+      dockerfile: .docker/app/Dockerfile
+      args:
+        - RAILS_MASTER_KEY
     ports:
       - "3000:3000"
     volumes:
@@ -48,6 +44,10 @@ services:
       - RAILS_VERSION # Set via environment variable or use default defined in .env file
       - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
       - BUNDLE_PATH # Set via environment variable or use default defined in .env file
-    entrypoint:
-      - "/usr/bin/entrypoint.sh"
-    command: sleep infinity
+      - RAILS_ENV
+      - SPOTLIGHT_DB_HOST
+      - SPOTLIGHT_DB_ROOT_PASSWORD
+      - SPOTLIGHT_DB_NAME
+      - SPOTLIGHT_DB_USER
+      - SPOTLIGHT_DB_PASSWORD
+    command: "bundle exec rails server -b 0.0.0.0"

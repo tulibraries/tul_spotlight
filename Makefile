@@ -7,7 +7,7 @@ VERSION ?= $(DOCKER_IMAGE_VERSION)
 IMAGE ?= tulibraries/tul-spotlight
 SOLR_IMAGE ?= tulibraries/tul-solr
 SOLR_VERSION ?= 8.3.0
-SOLR_URL ?= http://solr:8983/solr/blacklight-core	
+SOLR_URL = http://172.18.0.1:8090/solr/tul_spotlight-0.0.1
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
 CI ?= false
@@ -29,7 +29,13 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "SOLR_URL=$(SOLR_URL)" \
     --rm -it
 
-build:
+solrurl:
+	@echo $(SOLR_HOST)
+	@echo $(SOLR_URL)
+
+build: pull_db build_solr build_app
+
+build_app:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
@@ -53,7 +59,9 @@ build_solr:
 		--file .docker/solr/Dockerfile.solr \
 		--no-cache .
 
-run:
+up: run_solr run_db run_app
+
+run_app:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
@@ -73,23 +81,50 @@ run_solr:
 	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
 
+shell_app:
+	@docker exec -it spotlight bash -l
+
 shell_dev:
 	@docker exec -it spotlight-dev bash -l
 
 stop_dev:
 	@docker stop spotlight-dev
 
-stop:
-	@docker stop spotlight
+start: start_solr start_db run_app
 
-stop_db:
-	@docker stop db 
+start_app:
+	@docker start spotlight
+
+start_db:
+	@docker start db 
 
 start_solr:
 	@docker start solr
 
+stop: stop_app stop_db stop_solr
+
+stop_app:
+	-docker stop spotlight
+
+stop_db:
+	-docker stop db 
+
 stop_solr:
-	@docker stop solr
+	-docker stop solr
+
+down: down_app down_db down_solr
+
+down_app:
+	-docker stop spotlight
+	@docker rm spotlight
+
+down_db:
+	-docker stop db 
+	@docker rm db 
+
+down_solr:
+	-docker stop solr
+	@docker rm solr
 
 lint:
 	@if [ $(CI) == false ]; \
@@ -121,3 +156,9 @@ deploy: scan lint
 		then \
 			docker push $(HARBOR)/$(IMAGE):latest; \
 		fi
+
+zip:
+	zip -r ~/solrconfig.zip . -x ".git*" \
+		Gemfile Gemfile.lock "spec/*" "vendor/*" \
+		Makefile ".circle*" "bin/*" LICENSE "README*" \
+		docker-compose.yml

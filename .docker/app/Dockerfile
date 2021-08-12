@@ -14,7 +14,6 @@ RUN apk add -U --no-cache \
       tzdata=2021a-r0 \
       shared-mime-info=2.1-r0 \
       mariadb-connector-c=3.1.13-r0 && \
-    apk add -U --no-cache curl && \
     apk add -U --no-cache --virtual build-dependencies \
       git=2.32.0-r0 \
       build-base=0.5-r2 \

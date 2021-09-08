@@ -15,6 +15,7 @@ SPOTLIGHT_DB_HOST ?= host.docker.internal
 SPOTLIGHT_DB_NAME ?= tul_spotlight
 SPOTLIGHT_DB_USER ?= root
 SPOTLIGHT_DB_PASSWORD ?= password
+CWD = $(shell pwd)
 
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "K8=yes" \
@@ -69,7 +70,7 @@ run_app:
 run_dev:
 	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
-		--mount type=bind,source=/Users/skng/Projects/spotlight/temple_spotlight,target=/app \
+		--mount type=bind,source=$(CWD),target=/app \
 		$(IMAGE):dev sleep infinity
 
 run_db:

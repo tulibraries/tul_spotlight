@@ -1,5 +1,5 @@
 {
-  "name": "temple_spotlight",
+  "name": "tul_spotlight",
   "private": true,
   "dependencies": {
     "@rails/actioncable": "^6.0.0",

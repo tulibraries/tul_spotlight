@@ -7,7 +7,7 @@ VERSION ?= $(DOCKER_IMAGE_VERSION)
 IMAGE ?= tulibraries/tul-spotlight
 SOLR_IMAGE ?= tulibraries/tul-solr
 SOLR_VERSION ?= 8.3.0
-SOLR_URL = http://172.18.0.1:8090/solr/tul_spotlight-0.0.1
+SOLR_URL = http://$(SOLR_HOST):$(SOLR_PORT)/solr/tul_spotlight
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
 CI ?= false
@@ -60,7 +60,12 @@ build_solr:
 		--file .docker/solr/Dockerfile.solr \
 		--no-cache .
 
-up: run_solr run_db run_app
+init_data: run_solr run_db
+
+rm_data:
+	-docker stop solr db
+
+reset_data: rm_data inir_data
 
 run_app:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \

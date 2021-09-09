@@ -1,25 +1,14 @@
 version: "3.2"
 services:
-  web:
-    build:
-      context: .
-      dockerfile: .docker/app/Dockerfile
+  db:
+    image: mariadb
+    restart: always
     environment:
-      RAILS_ENV: production
-      BUNDLE_PATH: vendor/bundle
+      MYSQL_ROOT_PASSWORD: "password"
     ports:
-      - "3000:3000"
-    depends_on:
-      - solr
-    environment:
-      - SOLR_URL # Set via environment variable or use default defined in .env file
-      - RAILS_VERSION # Set via environment variable or use default defined in .env file
-      - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
-      - SECRET_KEY_BASE # Set via environment variable or use default defined in .env file
-    entrypoint:
-      - ruby
-      - /app/bin/app-start.rb
-
+      - "3306:3306"
+    volumes:
+      - ./tmp/db:/var/lib/mysql
   solr:
     environment:
       - SOLR_PORT # Set via environment variable or use default defined in .env file
@@ -32,7 +21,33 @@ services:
     command:
       - docker-entrypoint.sh
       - solr-precreate
-      - blacklight-core
+      - tul_spotlight
       - /opt/solr/conf
       - "-Xms256m"
       - "-Xmx512m"
+  web:
+    build:
+      context: .
+      dockerfile: .docker/app/Dockerfile
+      args:
+        - RAILS_MASTER_KEY
+    ports:
+      - "3000:3000"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    depends_on:
+      - solr
+    environment:
+      - SOLR_URL # Set via environment variable or use default defined in .env file
+      - RAILS_VERSION # Set via environment variable or use default defined in .env file
+      - RAILS_MASTER_KEY # Set via environment variable or use default defined in .env file
+      - BUNDLE_PATH # Set via environment variable or use default defined in .env file
+      - RAILS_ENV
+      - SPOTLIGHT_DB_HOST
+      - SPOTLIGHT_DB_ROOT_PASSWORD
+      - SPOTLIGHT_DB_NAME
+      - SPOTLIGHT_DB_USER
+      - SPOTLIGHT_DB_PASSWORD
+    command: "bundle exec rails server -b 0.0.0.0"

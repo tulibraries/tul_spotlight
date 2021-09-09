@@ -4,29 +4,133 @@ export #exports the .env variables
 
 #Set DOCKER_IMAGE_VERSION in the .env file OR by passing in
 VERSION ?= $(DOCKER_IMAGE_VERSION)
-IMAGE ?= tulibraries/spotlight
+IMAGE ?= tulibraries/tul-spotlight
+SOLR_IMAGE ?= tulibraries/tul-solr
+SOLR_VERSION ?= 8.3.0
+SOLR_URL = http://$(SOLR_HOST):$(SOLR_PORT)/solr/tul_spotlight
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
-RAILS_MASTER_KEY ?= $(SECRET_KEY_BASE)
 CI ?= false
-DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
-		-e "K8=yes" \
-		-e "RAILS_ENV=production" \
-		-e "RAILS_MASTER_KEY=$(RAILS_MASTER_KEY)" \
-		-e "RAILS_SERVE_STATIC_FILES=yes" \
-		--rm -it
+SPOTLIGHT_DB_HOST ?= host.docker.internal
+SPOTLIGHT_DB_NAME ?= tul_spotlight
+SPOTLIGHT_DB_USER ?= root
+SPOTLIGHT_DB_PASSWORD ?= password
+CWD = $(shell pwd)
 
-build:
+DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
+    -e "K8=yes" \
+    -e "SPOTLIGHT_DB_HOST=$(SPOTLIGHT_DB_HOST)" \
+    -e "SPOTLIGHT_DB_NAME=$(SPOTLIGHT_DB_NAME)" \
+    -e "SPOTLIGHT_DB_USER=$(SPOTLIGHT_DB_USER)" \
+    -e "SPOTLIGHT_DB_PASSWORD=$(SPOTLIGHT_DB_PASSWORD)" \
+    -e "SPOTLIGHT_DB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD)" \
+    -e "RAILS_ENV=production" \
+    -e "RAILS_MASTER_KEY=$(RAILS_MASTER_KEY)" \
+    -e "RAILS_SERVE_STATIC_FILES=yes" \
+    -e "SOLR_URL=$(SOLR_URL)" \
+    --rm -it
+
+solrurl:
+	@echo $(SOLR_HOST)
+	@echo $(SOLR_URL)
+
+build: pull_db build_solr build_app
+
+build_app:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
-run:
+build_dev:
+	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--tag $(IMAGE):$(VERSION)-dev \
+		--tag $(IMAGE):dev \
+		--file .docker/app/Dockerfile.dev \
+		--no-cache .
+
+pull_db:
+	@docker pull bitnami/mariadb:latest
+
+build_solr:
+	@docker build \
+		--tag $(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION) \
+		--tag $(HARBOR)/$(SOLR_IMAGE):latest \
+		--file .docker/solr/Dockerfile.solr \
+		--no-cache .
+
+init_data: run_solr run_db
+
+rm_data:
+	-docker stop solr db
+
+reset_data: rm_data inir_data
+
+run_app:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
+
+run_dev:
+	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
+		$(DEFAULT_RUN_ARGS) \
+		--mount type=bind,source=$(CWD),target=/app \
+		$(IMAGE):dev sleep infinity
+
+run_db:
+	@docker run --name=db -d -p 127.0.0.1:3306:3306 \
+	  -e MARIADB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD) \
+		bitnami/mariadb:latest
+
+run_solr:
+	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
+		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
+
+shell_app:
+	@docker exec -it spotlight bash -l
+
+shell_dev:
+	@docker exec -it spotlight-dev bash -l
+
+stop_dev:
+	@docker stop spotlight-dev
+
+start: start_solr start_db run_app
+
+start_app:
+	@docker start spotlight
+
+start_db:
+	@docker start db 
+
+start_solr:
+	@docker start solr
+
+stop: stop_app stop_db stop_solr
+
+stop_app:
+	-docker stop spotlight
+
+stop_db:
+	-docker stop db 
+
+stop_solr:
+	-docker stop solr
+
+down: down_app down_db down_solr
+
+down_app:
+	-docker stop spotlight
+	@docker rm spotlight
+
+down_db:
+	-docker stop db 
+	@docker rm db 
+
+down_solr:
+	-docker stop solr
+	@docker rm solr
 
 lint:
 	@if [ $(CI) == false ]; \
@@ -58,3 +162,9 @@ deploy: scan lint
 		then \
 			docker push $(HARBOR)/$(IMAGE):latest; \
 		fi
+
+zip:
+	zip -r ~/solrconfig.zip . -x ".git*" \
+		Gemfile Gemfile.lock "spec/*" "vendor/*" \
+		Makefile ".circle*" "bin/*" LICENSE "README*" \
+		docker-compose.yml

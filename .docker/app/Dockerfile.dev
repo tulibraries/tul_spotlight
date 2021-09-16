@@ -1,5 +1,4 @@
-FROM harbor.k8s.temple.edu/library/ruby@sha256:9d39a6db445881d390537a0ad678ef3dd672c80e7faafd32561f039a157f8ab4
-#FROM harbor.k8s.temple.edu/library/ruby:2.7-alpine
+FROM harbor.k8s.temple.edu/library/ruby:2.7-alpine
 
 WORKDIR /app
 

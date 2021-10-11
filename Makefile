@@ -15,6 +15,7 @@ SPOTLIGHT_DB_HOST ?= host.docker.internal
 SPOTLIGHT_DB_NAME ?= tul_spotlight
 SPOTLIGHT_DB_USER ?= root
 SPOTLIGHT_DB_PASSWORD ?= password
+DEV_BUNDLE_PATH ?= vendor/bundle
 CWD = $(shell pwd)
 
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
@@ -35,6 +36,7 @@ show_env:
 	@echo "SOLR_URL: $(SOLR_URL)"
 	@echo "DB_HOST: $(SPOTLIGHT_DB_HOST)"
 	@echo "RAILS_MASTER_KEY: $(RAILS_MASTER_KEY)"
+	@echo "BUNDLE_PATH: $(DEV_BUNDLE_PATH)"
 
 build: pull_db build_solr build_app
 
@@ -47,6 +49,7 @@ build_app:
 
 build_dev:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--build-arg RAILS_ENV=development \
 		--tag $(IMAGE):$(VERSION)-dev \
 		--tag $(IMAGE):dev \
 		--file .docker/app/Dockerfile.dev \
@@ -72,6 +75,8 @@ run_app:
 run_dev:
 	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
+		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
+		-e "RAILS_ENV=development" \
 		--mount type=bind,source=$(CWD),target=/app \
 		$(IMAGE):dev sleep infinity
 

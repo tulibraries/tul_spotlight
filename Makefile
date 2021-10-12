@@ -15,6 +15,7 @@ SPOTLIGHT_DB_HOST ?= host.docker.internal
 SPOTLIGHT_DB_NAME ?= tul_spotlight
 SPOTLIGHT_DB_USER ?= root
 SPOTLIGHT_DB_PASSWORD ?= password
+DEV_BUNDLE_PATH ?= vendor/bundle
 CWD = $(shell pwd)
 
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
@@ -30,9 +31,12 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "SOLR_URL=$(SOLR_URL)" \
     --rm -it
 
-solrurl:
-	@echo $(SOLR_HOST)
-	@echo $(SOLR_URL)
+show_env:
+	@echo "SOLR_HOST: $(SOLR_HOST)"
+	@echo "SOLR_URL: $(SOLR_URL)"
+	@echo "DB_HOST: $(SPOTLIGHT_DB_HOST)"
+	@echo "RAILS_MASTER_KEY: $(RAILS_MASTER_KEY)"
+	@echo "BUNDLE_PATH: $(DEV_BUNDLE_PATH)"
 
 build: pull_db build_solr build_app
 
@@ -45,6 +49,7 @@ build_app:
 
 build_dev:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--build-arg RAILS_ENV=development \
 		--tag $(IMAGE):$(VERSION)-dev \
 		--tag $(IMAGE):dev \
 		--file .docker/app/Dockerfile.dev \
@@ -62,11 +67,6 @@ build_solr:
 
 init_data: run_solr run_db
 
-rm_data:
-	-docker stop solr db
-
-reset_data: rm_data inir_data
-
 run_app:
 	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
@@ -75,6 +75,8 @@ run_app:
 run_dev:
 	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
+		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
+		-e "RAILS_ENV=development" \
 		--mount type=bind,source=$(CWD),target=/app \
 		$(IMAGE):dev sleep infinity
 
@@ -118,18 +120,21 @@ stop_db:
 stop_solr:
 	-docker stop solr
 
-down: down_app down_db down_solr
+reset_data: reset_db reset_solr
 
-down_app:
-	-docker stop spotlight
-	@docker rm spotlight
+reset_db: down_db run_db
 
-down_db:
-	-docker stop db 
+reset_solr: down_solr run_solr
+
+down_all: down_app down_db down_solr
+
+down_app: stop_app
+	@docker rm app
+
+down_db: stop_db
 	@docker rm db 
 
-down_solr:
-	-docker stop solr
+down_solr: stop_db
 	@docker rm solr
 
 lint:

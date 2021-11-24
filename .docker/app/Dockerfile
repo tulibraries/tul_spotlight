@@ -1,6 +1,5 @@
 FROM harbor.k8s.temple.edu/library/ruby:2.7-alpine
 
-
 WORKDIR /app
 
 COPY . .
@@ -14,7 +13,7 @@ RUN apk add -U --no-cache \
       libxslt=1.1.34-r1 \
       tzdata=2021e-r0 \
       shared-mime-info=2.1-r0 \
-      imagemagick=7.0.11.13-r0 \
+      imagemagick=7.0.11.14-r0 \
       mariadb-connector-c=3.1.13-r0 && \
     apk add -U --no-cache --virtual build-dependencies \
       git=2.32.0-r0 \
@@ -27,9 +26,11 @@ RUN apk add -U --no-cache \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \
     bundle install --jobs=8 && \
+    yarn install --check-files && \
     find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
     find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
     RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \
+    wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip" && unzip awscliv2.zip && aws/install && \
     rm -rf node_modules && \
     rm -rf /var/cache/apk/ && \
     chown nobody -R /app/db && \

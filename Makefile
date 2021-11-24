@@ -40,14 +40,14 @@ show_env:
 
 build: pull_db build_solr build_app
 
-build_app build-app:
+build_app:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
-build-dev build-dev:
+build_dev:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--build-arg RAILS_ENV=development \
 		--tag $(IMAGE):$(VERSION)-dev \
@@ -134,7 +134,7 @@ down_app: stop_app
 down_db: stop_db
 	@docker rm db 
 
-down_solr: stop_db
+down_solr: stop_solr
 	@docker rm solr
 
 lint:

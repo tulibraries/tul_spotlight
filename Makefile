@@ -68,7 +68,7 @@ build_solr:
 init_data: run_solr run_db
 
 run_app:
-	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
+	@docker run --name=spotlight -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 

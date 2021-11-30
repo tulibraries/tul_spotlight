@@ -7,9 +7,14 @@ COPY . .
 USER root
 
 ARG RAILS_MASTER_KEY
+ARG SPOTLIGHT_DB_NAME
+ARG SPOTLIGHT_DB_PASSWORD
 
+RUN sed -i "s/db_user/$(SPOTLIGHT_DB_NAME)/g" my.cnf && \
+    sed -i "s/db_password/$SPOTLIGHT_DB_PASSWORD/g" my.cnf
 RUN apk add -U --no-cache \
       bash=5.1.4-r0 \
+      sed \
       libxslt=1.1.34-r1 \
       tzdata=2021e-r0 \
       shared-mime-info=2.1-r0 \
@@ -20,13 +25,13 @@ RUN apk add -U --no-cache \
       build-base=0.5-r2 \
       libxslt-dev=1.1.34-r1 \
       mariadb-dev=10.5.13-r0 \
+      mariadb-client=10.5.13-r0 \
       nodejs=14.18.1-r0 \
       yarn=1.22.10-r0 && \
     gem install bundler:2.2.17 && \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \
     bundle install --jobs=8 && \
-    yarn install --check-files && \
     find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
     find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
     RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \

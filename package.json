@@ -7,8 +7,10 @@
     "@rails/ujs": "^6.0.0",
     "@rails/webpacker": "4.3.0",
     "node-sass": "^4.14",
-    "json-schema": "0.4.0",
     "turbolinks": "^5.2.0"
+  },
+  "resolutions": {
+    "json-schema": "0.4.0"
   },
   "version": "0.1.0",
   "devDependencies": {

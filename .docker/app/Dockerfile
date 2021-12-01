@@ -1,4 +1,5 @@
-FROM harbor.k8s.temple.edu/library/ruby:2.7-alpine
+# FROM harbor.k8s.temple.edu/library/ruby:2.7-alpine
+FROM harbor.k8s.temple.edu/library/ruby@sha256:26bc67d442972808126abb9b986af02b958891776c3261a2323f2ed9da32b8ca
 
 WORKDIR /app
 
@@ -7,14 +8,11 @@ COPY . .
 USER root
 
 ARG RAILS_MASTER_KEY
-ARG SPOTLIGHT_DB_NAME
+ARG SPOTLIGHT_DB_USER
 ARG SPOTLIGHT_DB_PASSWORD
 
-RUN sed -i "s/db_user/$(SPOTLIGHT_DB_NAME)/g" my.cnf && \
-    sed -i "s/db_password/$SPOTLIGHT_DB_PASSWORD/g" my.cnf
 RUN apk add -U --no-cache \
       bash=5.1.4-r0 \
-      sed \
       libxslt=1.1.34-r1 \
       tzdata=2021e-r0 \
       shared-mime-info=2.1-r0 \
@@ -35,6 +33,8 @@ RUN apk add -U --no-cache \
     find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
     find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
     RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \
+    sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /app/my.cnf && \
+    sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /app/my.cnf && \
     wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip" && unzip awscliv2.zip && aws/install && \
     rm -rf node_modules && \
     rm -rf /var/cache/apk/ && \

@@ -42,6 +42,8 @@ build: pull_db build_solr build_app
 
 build_app:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--build-arg SPOTLIGHT_DB_USER=$(SPOTLIGHT_DB_USER) \
+		--build-arg SPOTLIGHT_DB_PASSWORD=$(SPOTLIGHT_DB_PASSWORD) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
@@ -50,6 +52,8 @@ build_app:
 build_dev:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--build-arg RAILS_ENV=development \
+		--build-arg SPOTLIGHT_DB_USER=$(SPOTLIGHT_DB_USER) \
+		--build-arg SPOTLIGHT_DB_PASSWORD=$(SPOTLIGHT_DB_PASSWORD) \
 		--tag $(IMAGE):$(VERSION)-dev \
 		--tag $(IMAGE):dev \
 		--file .docker/app/Dockerfile.dev \
@@ -77,8 +81,11 @@ run_dev:
 		$(DEFAULT_RUN_ARGS) \
 		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
 		-e "RAILS_ENV=development" \
-		--mount type=bind,source=$(CWD),target=/app \
 		$(IMAGE):dev sleep infinity
+
+reload_dev: stop_dev run_dev
+
+repl: build_dev stop_dev run_dev
 
 run_db:
 	@docker run --name=db -d -p 127.0.0.1:3306:3306 \

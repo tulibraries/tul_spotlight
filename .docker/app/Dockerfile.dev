@@ -18,7 +18,9 @@ RUN apk add -U --no-cache \
       tzdata=2021e-r0 \
       shared-mime-info=2.1-r0 \
       imagemagick=7.0.11.14-r0 \
-      mariadb-connector-c=3.1.13-r0 && \
+      mariadb-connector-c=3.1.13-r0 \
+      python3=3.9.5-r2 \
+      sudo=1.9.7_p1-r1 && \
     apk add -U --no-cache --virtual build-dependencies \
       git=2.32.0-r0 \
       build-base=0.5-r2 \
@@ -27,11 +29,16 @@ RUN apk add -U --no-cache \
       mariadb-client=10.5.13-r0 \
       nodejs=14.18.1-r0 \
       yarn=1.22.10-r0 && \
-    gem install bundler:2.2.17 && \
+    python3 -m ensurepip && \
+    gem install bundler:2.2.18 && \
     gem install rails:6.0.3 && \
-    sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /app/my.cnf && \
-    sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /app/my.cnf && \
-    wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip" && unzip awscliv2.zip && aws/install && \
+    cp /app/my.cnf /.my.cnf && chmod 600 /.my.cnf && chown nobody:nobody /.my.cnf && \
+    sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /.my.cnf && sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /.my.cnf && \
+    cp /app/dbdumptos3 /usr/local/bin/dbdumptos3 && chmod a+rx /usr/local/bin/dbdumptos3 && chown root:root /usr/local/bin/dbdumptos3 && \
+    pip3 install awscli==1.22.19 && \
+    mkdir -p /.aws && chmod 700 /.aws && chown nobody:nobody /.aws && \
+    cp /app/files/aws_credentials /.aws/aws_credentials && chmod 600 /.aws/aws_credentials && chown nobody:nobody /.aws/aws_credentials && \
+    cp /app/files/aws_config /.aws/aws_config && chmod 600 /.aws/aws_config && chown nobody:nobody /.aws/aws_config && \
     chmod +x .docker/app/entrypoint-dev.sh
 
 ENTRYPOINT [".docker/app/entrypoint-dev.sh"]

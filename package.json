@@ -10,7 +10,10 @@
     "turbolinks": "^5.2.0"
   },
   "resolutions": {
-    "json-schema": "0.4.0"
+    "ansi-regex": "5.0.1",
+    "glob-parent": "5.1.2",
+    "json-schema": "0.4.0",
+    "nth-check": "2.0.1"
   },
   "version": "0.1.0",
   "devDependencies": {

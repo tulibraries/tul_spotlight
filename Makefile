@@ -85,7 +85,7 @@ run_dev:
 
 reload_dev: stop_dev run_dev
 
-repl: build_dev stop_dev run_dev
+repl: build_app stop_app run_app
 
 run_db:
 	@docker run --name=db -d -p 127.0.0.1:3306:3306 \

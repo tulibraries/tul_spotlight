@@ -5,7 +5,7 @@ ruby '2.7.5'
 
 gem 'rails', '~> 6.0.4', '>= 6.0.4.1'
 gem "mysql2", "~> 0.5.3"
-gem 'puma', '~> 4.3.8'
+gem 'puma', '~> 4.3.9'
 gem 'sass-rails', '>= 6'
 gem 'webpacker', '~> 4.0'
 gem 'turbolinks', '~> 5'
@@ -44,6 +44,7 @@ group :development, :test do
   gem 'solr_wrapper', '>= 0.3'
 end
 
+gem "rdoc", "6.3.1"
 gem 'rsolr', '>= 1.0', '< 3'
 gem 'bootstrap', '~> 4.0'
 gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'

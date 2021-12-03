@@ -24,18 +24,22 @@ RUN apk add -U --no-cache \
       libxslt-dev=1.1.34-r1 \
       mariadb-dev=10.5.13-r0 \
       mariadb-client=10.5.13-r0 \
+      python3=3.9.5-r2 \
       nodejs=14.18.1-r0 \
       yarn=1.22.10-r0 && \
-    gem install bundler:2.2.17 && \
+    python3 -m ensurepip && \
+    gem install bundler:2.2.18 && \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \
     bundle install --jobs=8 && \
     find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
     find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
     RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \
-    sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /app/my.cnf && \
-    sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /app/my.cnf && \
-    wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip" && unzip awscliv2.zip && aws/install && \
+    cp /app/my.cnf /.my.cnf && chmod 600 /.my.cnf && chown nobody:nobody /.my.cnf && \
+    sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /.my.cnf && sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /.my.cnf && \
+    cp /app/dbdumptos3 /usr/local/bin/dbdumptos3 && chmod a+rx /usr/local/bin/dbdumptos3 && chown root:root /usr/local/bin/dbdumptos3 && \
+    pip3 install awscli==1.22.19 && \
+    chmod +x .docker/app/entrypoint.sh && \
     rm -rf node_modules && \
     rm -rf /var/cache/apk/ && \
     chown nobody -R /app/db && \

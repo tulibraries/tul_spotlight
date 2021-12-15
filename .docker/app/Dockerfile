@@ -29,18 +29,19 @@ RUN apk add -U --no-cache \
       nodejs=16.13.1-r0 \
       yarn=1.22.17-r0 && \
     python3 -m ensurepip && \
-    gem install bundler:2.2.33 && \
+    gem install default bundler:2.2.33 && \
+    bundle config default 2.2.33 \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \
     bundle install --jobs=8 && \
     find "$GEM_HOME" -name Gemfile.lock -exec rm "{}" \; && \
-    find "$GEM_HOME" -name yarn.lock -exec rm "{}" \;
-RUN RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile
-RUN cp /app/my.cnf /.my.cnf && chmod 600 /.my.cnf && chown nobody:nobody /.my.cnf
-RUN sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /.my.cnf && sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /.my.cnf 
-RUN cp /app/dbdumptos3 /usr/local/bin/dbdumptos3 && chmod a+rx /usr/local/bin/dbdumptos3 && chown root:root /usr/local/bin/dbdumptos3
-RUN pip3 install awscli==1.22.19
-RUN mkdir -p /.aws && chmod 700 /.aws && chown nobody:nobody /.aws && \
+    find "$GEM_HOME" -name yarn.lock -exec rm "{}" \; && \
+    RAILS_ENV=production RAILS_MASTER_KEY=$RAILS_MASTER_KEY bundle exec rails assets:precompile && \
+    cp /app/my.cnf /.my.cnf && chmod 600 /.my.cnf && chown nobody:nobody /.my.cnf && \
+    sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /.my.cnf && sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /.my.cnf && \
+    cp /app/dbdumptos3 /usr/local/bin/dbdumptos3 && chmod a+rx /usr/local/bin/dbdumptos3 && chown root:root /usr/local/bin/dbdumptos3 && \
+    pip3 install awscli==1.22.19 && \
+    mkdir -p /.aws && chmod 700 /.aws && chown nobody:nobody /.aws && \
     cp /app/files/aws_credentials /.aws/aws_credentials && chmod 600 /.aws/aws_credentials && chown nobody:nobody /.aws/aws_credentials && \
     cp /app/files/aws_config /.aws/aws_config && chmod 600 /.aws/aws_config && chown nobody:nobody /.aws/aws_config && \
     rm -rf node_modules && \

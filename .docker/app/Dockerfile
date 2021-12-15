@@ -30,7 +30,8 @@ RUN apk add -U --no-cache \
       yarn=1.22.17-r0 && \
     python3 -m ensurepip && \
     gem install default bundler:2.2.33 && \
-    bundle config default 2.2.33 \
+    gem update --system && \
+    bundler update --bundler && \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \
     bundle install --jobs=8 && \

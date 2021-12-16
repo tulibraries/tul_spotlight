@@ -62,6 +62,6 @@ gem 'devise_invitable'
 # Additional Gems for uploading assets
 gem "mimemagic", "0.3.8"
 gem "carrierwave", "2.2.2"
-gem "nokogiri", "1.12.4"
+gem "nokogiri", "1.12.5"
 gem "addressable", "2.8.0"
 gem "cgi", "0.1.1"

@@ -47,6 +47,7 @@ RUN apk add -U --no-cache \
     cp /app/files/aws_config /.aws/aws_config && chmod 600 /.aws/aws_config && chown nobody:nobody /.aws/aws_config && \
     rm -rf node_modules && \
     rm -rf /var/cache/apk/ && \
+    rm -rf /usr/local/lib/ruby/gems/2.7.0/specifications/default/cgi-0.1.0.1.gemspec && \
     chown nobody -R /app/db && \
     chown nobody -R /app/public && \
     chown nobody -R /app/tmp && \

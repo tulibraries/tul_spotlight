@@ -25,11 +25,10 @@ RUN apk add -U --no-cache \
       mariadb-dev=10.6.4-r2 \
       mariadb-client=10.6.4-r2 \
       python3=3.9.7-r4 \
-      python2 \
       nodejs=16.13.1-r0 \
       yarn=1.22.17-r0 && \
     python3 -m ensurepip && \
-    gem install default bundler:2.2.33 && \
+    gem install bundler:2.2.33 && \
     gem update --system && \
     bundler update --bundler && \
     bundle config build.nokogiri --use-system-libraries && \
@@ -41,7 +40,7 @@ RUN apk add -U --no-cache \
     cp /app/my.cnf /.my.cnf && chmod 600 /.my.cnf && chown nobody:nobody /.my.cnf && \
     sed -i -r "s/DB_USER/${SPOTLIGHT_DB_USER}/g" /.my.cnf && sed -i -r "s/DB_PASSWORD/$SPOTLIGHT_DB_PASSWORD/g" /.my.cnf && \
     cp /app/dbdumptos3 /usr/local/bin/dbdumptos3 && chmod a+rx /usr/local/bin/dbdumptos3 && chown root:root /usr/local/bin/dbdumptos3 && \
-    pip3 install awscli==1.22.19 && \
+    pip3 install --no-cache-dir awscli==1.22.19 && \
     mkdir -p /.aws && chmod 700 /.aws && chown nobody:nobody /.aws && \
     cp /app/files/aws_credentials /.aws/aws_credentials && chmod 600 /.aws/aws_credentials && chown nobody:nobody /.aws/aws_credentials && \
     cp /app/files/aws_config /.aws/aws_config && chmod 600 /.aws/aws_config && chown nobody:nobody /.aws/aws_config && \

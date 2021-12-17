@@ -48,6 +48,8 @@ RUN apk add -U --no-cache \
     rm -rf node_modules && \
     rm -rf /var/cache/apk/ && \
     rm -rf /usr/local/lib/ruby/gems/2.7.0/specifications/default/cgi-0.1.0.1.gemspec && \
+    rm -rf /usr/local/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.1.gemspec && \
+    rm -rf /usr/local/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec && \
     chown nobody -R /app/db && \
     chown nobody -R /app/public && \
     chown nobody -R /app/tmp && \

@@ -1,0 +1,3 @@
+[default]
+region = AWS_DBDUMP_REGION
+output = json

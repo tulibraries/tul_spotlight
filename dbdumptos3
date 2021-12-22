@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Delete previous backup files
+if [[ -f /tmp/$SPOTLIGHT_DB_NAME-*.sql.gz ]]
+then
+  rm /tmp/$SPOTLIGHT_DB_NAME-*.sql.gz
+fi
+# Create dumpfile name
+DUMP_FILENAME="/tmp/$SPOTLIGHT_DB_NAME-`date +%Y%m%d%H%M%S`.sql.gz"
+mysqldump -h $SPOTLIGHT_DB_HOST $SPOTLIGHT_DB_NAME | gzip > $DUMP_FILENAME
+/usr/local/bin/aws s3 cp $DUMP_FILENAME $SPOTLIGHT_S3_BUCKET

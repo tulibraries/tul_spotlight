@@ -42,8 +42,6 @@ build: pull_db build_solr build_app
 
 build_app:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
-		--build-arg SPOTLIGHT_DB_USER=$(SPOTLIGHT_DB_USER) \
-		--build-arg SPOTLIGHT_DB_PASSWORD=$(SPOTLIGHT_DB_PASSWORD) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
@@ -52,8 +50,6 @@ build_app:
 build_dev:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--build-arg RAILS_ENV=development \
-		--build-arg SPOTLIGHT_DB_USER=$(SPOTLIGHT_DB_USER) \
-		--build-arg SPOTLIGHT_DB_PASSWORD=$(SPOTLIGHT_DB_PASSWORD) \
 		--tag $(IMAGE):$(VERSION)-dev \
 		--tag $(IMAGE):dev \
 		--file .docker/app/Dockerfile.dev \

@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.7.4'
+ruby '2.7.5'
 
 gem 'rails', '~> 6.0.4', '>= 6.0.4.1'
 gem "mysql2", "~> 0.5.3"
-gem 'puma', '~> 4.3.8'
+gem 'puma', '~> 4.3.9'
 gem 'sass-rails', '>= 6'
 gem 'webpacker', '~> 4.0'
 gem 'turbolinks', '~> 5'
@@ -44,6 +44,7 @@ group :development, :test do
   gem 'solr_wrapper', '>= 0.3'
 end
 
+gem "rdoc", "6.3.1"
 gem 'rsolr', '>= 1.0', '< 3'
 gem 'bootstrap', '~> 4.0'
 gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
@@ -61,5 +62,7 @@ gem 'devise_invitable'
 # Additional Gems for uploading assets
 gem "mimemagic", "0.3.8"
 gem "carrierwave", "2.2.2"
-gem "nokogiri", "1.12.4"
+gem "nokogiri", "1.12.5"
 gem "addressable", "2.8.0"
+gem "cgi", "0.1.1"
+gem "rexml", "3.2.5"

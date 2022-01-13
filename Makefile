@@ -68,7 +68,7 @@ build_solr:
 init_data: run_solr run_db
 
 run_app:
-	@docker run --name=spotlight -p 127.0.0.1:3000:3000/tcp \
+	@docker run --name=spotlight -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
@@ -77,8 +77,11 @@ run_dev:
 		$(DEFAULT_RUN_ARGS) \
 		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
 		-e "RAILS_ENV=development" \
-		--mount type=bind,source=$(CWD),target=/app \
 		$(IMAGE):dev sleep infinity
+
+reload_dev: stop_dev run_dev
+
+repl: build_app stop_app run_app
 
 run_db:
 	@docker run --name=db -d -p 127.0.0.1:3306:3306 \
@@ -134,7 +137,7 @@ down_app: stop_app
 down_db: stop_db
 	@docker rm db 
 
-down_solr: stop_db
+down_solr: stop_solr
 	@docker rm solr
 
 lint:

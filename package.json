@@ -5,8 +5,15 @@
     "@rails/actioncable": "^6.0.0",
     "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
-    "@rails/webpacker": "4.3.0",
+    "@rails/webpacker": "5.4.2",
+    "sass": "^1.45.0",
     "turbolinks": "^5.2.0"
+  },
+  "resolutions": {
+    "ansi-regex": "5.0.1",
+    "glob-parent": "5.1.2",
+    "json-schema": "0.4.0",
+    "nth-check": "2.0.1"
   },
   "version": "0.1.0",
   "devDependencies": {

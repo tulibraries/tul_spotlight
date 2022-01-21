@@ -17,6 +17,7 @@ SPOTLIGHT_DB_USER ?= root
 SPOTLIGHT_DB_PASSWORD ?= password
 DEV_BUNDLE_PATH ?= vendor/bundle
 CWD = $(shell pwd)
+RAILS_MASTER_KEY?=137be8c5b0a917827949d83f80bd0d23
 
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "K8=yes" \
@@ -31,113 +32,91 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "SOLR_URL=$(SOLR_URL)" \
     --rm -it
 
-show_env:
+show-env:
 	@echo "SOLR_HOST: $(SOLR_HOST)"
 	@echo "SOLR_URL: $(SOLR_URL)"
 	@echo "DB_HOST: $(SPOTLIGHT_DB_HOST)"
 	@echo "RAILS_MASTER_KEY: $(RAILS_MASTER_KEY)"
 	@echo "BUNDLE_PATH: $(DEV_BUNDLE_PATH)"
+	@echo "CWD: $(CWD)"
 
 build: pull_db build_solr build_app
 
-build_app:
+build-app:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
-build_dev:
-	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
-		--build-arg RAILS_ENV=development \
-		--tag $(IMAGE):$(VERSION)-dev \
-		--tag $(IMAGE):dev \
-		--file .docker/app/Dockerfile.dev \
-		--no-cache .
-
-pull_db:
+pull-db:
 	@docker pull bitnami/mariadb:latest
 
-build_solr:
+build-solr:
 	@docker build \
 		--tag $(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION) \
 		--tag $(HARBOR)/$(SOLR_IMAGE):latest \
 		--file .docker/solr/Dockerfile.solr \
 		--no-cache .
 
-init_data: run_solr run_db
+init-data: run_solr run_db
 
-run_app:
+run-app:
 	@docker run --name=spotlight -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
-run_dev:
-	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
-		$(DEFAULT_RUN_ARGS) \
-		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
-		-e "RAILS_ENV=development" \
-		$(IMAGE):dev sleep infinity
-
-reload_dev: stop_dev run_dev
-
 repl: build_app stop_app run_app
 
-run_db:
+run-db:
 	@docker run --name=db -d -p 127.0.0.1:3306:3306 \
 	  -e MARIADB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD) \
 		bitnami/mariadb:latest
 
-run_solr:
+run-solr:
 	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
 
-shell_app:
+shell-app:
 	@docker exec -it spotlight bash -l
-
-shell_dev:
-	@docker exec -it spotlight-dev bash -l
-
-stop_dev:
-	@docker stop spotlight-dev
 
 start: start_solr start_db run_app
 
-start_app:
+start-app:
 	@docker start spotlight
 
-start_db:
+start-db:
 	@docker start db 
 
-start_solr:
+start-solr:
 	@docker start solr
 
-stop: stop_app stop_db stop_solr
+stop: stop-app stop-db stop-solr
 
-stop_app:
+stop-app:
 	-docker stop spotlight
 
-stop_db:
+stop-db:
 	-docker stop db 
 
-stop_solr:
+stop-solr:
 	-docker stop solr
 
-reset_data: reset_db reset_solr
+reset-data: reset_db reset_solr
 
-reset_db: down_db run_db
+reset-db: down_db run_db
 
-reset_solr: down_solr run_solr
+reset-solr: down_solr run_solr
 
-down_all: down_app down_db down_solr
+down-all: down_app down_db down_solr
 
-down_app: stop_app
+down-app: stop-app
 	@docker rm app
 
-down_db: stop_db
+down-db: stop-db
 	@docker rm db 
 
-down_solr: stop_solr
+down-solr: stop-solr
 	@docker rm solr
 
 lint:
@@ -176,3 +155,30 @@ zip:
 		Gemfile Gemfile.lock "spec/*" "vendor/*" \
 		Makefile ".circle*" "bin/*" LICENSE "README*" \
 		docker-compose.yml
+
+build-dev:
+	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--build-arg RAILS_ENV=development \
+		--tag $(IMAGE):$(VERSION)-dev \
+		--tag $(IMAGE):dev \
+		--file .docker/app/Dockerfile.dev \
+		--no-cache .
+
+run-dev:
+	@docker run --name=spotlight-dev -p 127.0.0.1:3000:3000/tcp \
+    $(DEFAULT_RUN_ARGS) \
+		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
+    -e "RAILS_ENV=development" \
+    --mount type=bind,source=$(CWD),target=/app \
+    $(IMAGE):dev sleep infinity
+
+shell-dev:
+	@docker run --rm -it \
+    $(DEFAULT_RUN_ARGS) \
+    -e "RAILS_ENV=development" \
+    --mount type=bind,source=$(CWD),target=/app \
+    --entrypoint=sh --user=root \
+    $(IMAGE):dev
+
+stop-dev:
+	@docker stop spotlight-dev

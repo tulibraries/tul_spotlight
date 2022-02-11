@@ -1,1 +1,60 @@
 /* === TUL Spotlight General Styles === */
+
+// Civil Rights in a Northern City body font, omitting 12px font size
+
+body {
+  font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* -- Headings -- */
+
+// Civil Rights in a Northern City heading styles, adapted to Spotlight structure
+
+h1, h2, h3 {
+  // font-weight: normal;
+  font-family: 'Gill Sans', sans-serif;
+  color: #951936;
+}
+
+h1.site-title, .image-masthead .h2 {
+  display: inline-block;
+  font-size: 2em;
+  // margin: 18px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.image-masthead .h2 {
+  text-shadow: 2px 2px 2px #951936;
+  color: white;
+}
+
+h1.page-title {
+  font-size: 30px;
+  line-height: 36px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 36px;
+}
+
+h3 {
+  font-size: 18px;
+  line-height: 18px;
+  color: #951936;
+}
+
+/* -- Links -- */
+
+// Civil Rights in a Northern City link colors
+
+a:link, a:visited {
+  color: #951936;
+}
+
+a:hover, a:active {
+  color: #D3113F;
+}

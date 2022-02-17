@@ -32,7 +32,7 @@ DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "SOLR_URL=$(SOLR_URL)" \
     --rm -it
 
-show-env:
+show_env:
 	@echo "SOLR_HOST: $(SOLR_HOST)"
 	@echo "SOLR_URL: $(SOLR_URL)"
 	@echo "DB_HOST: $(SPOTLIGHT_DB_HOST)"
@@ -40,83 +40,87 @@ show-env:
 	@echo "BUNDLE_PATH: $(DEV_BUNDLE_PATH)"
 	@echo "CWD: $(CWD)"
 
-build: pull_db build_solr build_app
-
-build-app:
+build:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
 		--no-cache .
 
-pull-db:
+pull+db:
 	@docker pull bitnami/mariadb:latest
 
-build-solr:
+build_solr:
 	@docker build \
 		--tag $(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION) \
 		--tag $(HARBOR)/$(SOLR_IMAGE):latest \
 		--file .docker/solr/Dockerfile.solr \
 		--no-cache .
 
-init-data: run_solr run_db
+init_data: run_solr run_db
 
-run-app:
+run_app:
 	@docker run --name=spotlight -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
+app_cli:
+	@docker run -p 127.0.0.1:3000:3000/tcp --rm -it \
+    $(DEFAULT_RUN_ARGS) \
+		--user=root \
+		$(HARBOR)/$(IMAGE):$(VERSION) bash -l
+
 repl: build_app stop_app run_app
 
-run-db:
+run_db:
 	@docker run --name=db -d -p 127.0.0.1:3306:3306 \
 	  -e MARIADB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD) \
 		bitnami/mariadb:latest
 
-run-solr:
+run_solr:
 	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
 
-shell-app:
+shell_app:
 	@docker exec -it spotlight bash -l
 
 start: start_solr start_db run_app
 
-start-app:
+start_app:
 	@docker start spotlight
 
-start-db:
+start_db:
 	@docker start db 
 
-start-solr:
+start_solr:
 	@docker start solr
 
-stop: stop-app stop-db stop-solr
+stop: stop_app stop_db stop_solr
 
-stop-app:
+stop_app:
 	-docker stop spotlight
 
-stop-db:
+stop_db:
 	-docker stop db 
 
-stop-solr:
+stop_solr:
 	-docker stop solr
 
-reset-data: reset_db reset_solr
+reset_data: reset_db reset_solr
 
-reset-db: down_db run_db
+reset_db: down_db run_db
 
-reset-solr: down_solr run_solr
+reset_solr: down_solr run_solr
 
-down-all: down_app down_db down_solr
+down_all: down_app down_db down_solr
 
-down-app: stop-app
+down_app: stop_app
 	@docker rm app
 
-down-db: stop-db
+down_db: stop_db
 	@docker rm db 
 
-down-solr: stop-solr
+down_solr: stop_solr
 	@docker rm solr
 
 lint:
@@ -134,11 +138,11 @@ shell:
 scan:
 	@if [ $(CLEAR_CACHES) == yes ]; \
 		then \
-			trivy image -c $(HARBOR)/$(IMAGE):$(VERSION); \
+			trivy $(HARBOR)/$(IMAGE):$(VERSION); \
 		fi
 	@if [ $(CI) == false ]; \
 		then \
-			trivy $(HARBOR)/$(IMAGE):$(VERSION); \
+			trivy image $(HARBOR)/$(IMAGE):$(VERSION); \
 		fi
 
 deploy: scan lint
@@ -156,7 +160,7 @@ zip:
 		Makefile ".circle*" "bin/*" LICENSE "README*" \
 		docker-compose.yml
 
-build-dev:
+build_dev:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--build-arg RAILS_ENV=development \
 		--tag $(IMAGE):$(VERSION)-dev \
@@ -164,21 +168,17 @@ build-dev:
 		--file .docker/app/Dockerfile.dev \
 		--no-cache .
 
-run-dev:
-	@docker run --name=spotlight-dev -p 127.0.0.1:3000:3000/tcp \
+run_dev:
+	@docker run --name=spotlight-dev -d \
+		-p 127.0.0.1:3000:3000/tcp \
     $(DEFAULT_RUN_ARGS) \
-		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
+    -e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
     -e "RAILS_ENV=development" \
     --mount type=bind,source=$(CWD),target=/app \
     $(IMAGE):dev sleep infinity
 
-shell-dev:
-	@docker run --rm -it \
-    $(DEFAULT_RUN_ARGS) \
-    -e "RAILS_ENV=development" \
-    --mount type=bind,source=$(CWD),target=/app \
-    --entrypoint=sh --user=root \
-    $(IMAGE):dev
+shell_dev:
+	@docker exec -it spotlight-dev bash -l
 
-stop-dev:
-	@docker stop spotlight-dev
+stop_dev:
+	-docker stop spotlight-dev

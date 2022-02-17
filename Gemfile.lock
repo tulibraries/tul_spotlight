@@ -576,7 +576,6 @@ DEPENDENCIES
   puma (~> 4.3.9)
   rails (~> 6.0.4, >= 6.0.4.4)
   rails-controller-testing
-  rake (= 13.0.6)
   rdoc (= 6.3.1)
   rexml (= 3.2.5)
   rsolr (>= 1.0, < 3)

@@ -17,18 +17,16 @@ RUN apk add -U --no-cache \
       tzdata=2021e-r0 \
       shared-mime-info=2.1-r0 \
       imagemagick=7.1.0.16-r0 \
-      mariadb-connector-c=3.1.13-r2 \
-      sudo=1.9.8_p2-r1 && \
+      mariadb-connector-c=3.1.13-r2 && \
     apk add -U --no-cache --virtual build-dependencies \
       git=2.34.1-r0 \
       build-base=0.5-r2 \
       libxslt-dev=1.1.34-r1 \
       mariadb-dev=10.6.4-r2 \
-      nodejs=16.13.1-r0 \
+      nodejs=16.14.0-r0 \
       yarn=1.22.17-r0 && \
     gem install default bundler:2.2.33 && \
     gem update --system && \
-    bundler update --bundler && \
     gem install rails:6.0.4 && \
     chmod +x .docker/app/entrypoint-dev.sh
 

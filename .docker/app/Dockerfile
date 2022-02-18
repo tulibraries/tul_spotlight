@@ -9,7 +9,7 @@ USER root
 ARG RAILS_MASTER_KEY
 
 RUN apk add -U --no-cache \
-      bash=5.1.8-r0 \
+      bash=5.1.16-r0 \
       libxslt=1.1.34-r1 \
       tzdata=2021e-r0 \
       shared-mime-info=2.1-r0 \
@@ -20,11 +20,10 @@ RUN apk add -U --no-cache \
       build-base=0.5-r2 \
       libxslt-dev=1.1.34-r1 \
       mariadb-dev=10.6.4-r2 \
-      nodejs=16.13.1-r0 \
+      nodejs=16.14.0-r0 \
       yarn=1.22.17-r0 && \
     gem install bundler:2.2.33 && \
     gem update --system && \
-    bundler update --bundler && \
     bundle config build.nokogiri --use-system-libraries && \
     bundle config set --local without "development test" && \
     bundle install --jobs=8 && \

@@ -7,6 +7,7 @@ VERSION ?= $(DOCKER_IMAGE_VERSION)
 IMAGE ?= tulibraries/tul-spotlight
 SOLR_IMAGE ?= tulibraries/tul-solr
 SOLR_VERSION ?= 8.3.0
+SOLR_HOST ?= host.docker.internal
 SOLR_URL = http://$(SOLR_HOST):$(SOLR_PORT)/solr/tul_spotlight
 HARBOR ?= harbor.k8s.temple.edu
 CLEAR_CACHES ?= no
@@ -17,6 +18,7 @@ SPOTLIGHT_DB_USER ?= root
 SPOTLIGHT_DB_PASSWORD ?= password
 DEV_BUNDLE_PATH ?= vendor/bundle
 CWD = $(shell pwd)
+RAILS_MASTER_KEY?=137be8c5b0a917827949d83f80bd0d23
 
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "K8=yes" \
@@ -37,22 +39,13 @@ show_env:
 	@echo "DB_HOST: $(SPOTLIGHT_DB_HOST)"
 	@echo "RAILS_MASTER_KEY: $(RAILS_MASTER_KEY)"
 	@echo "BUNDLE_PATH: $(DEV_BUNDLE_PATH)"
+	@echo "CWD: $(CWD)"
 
-build: pull_db build_solr build_app
-
-build_app:
+build:
 	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
 		--tag $(HARBOR)/$(IMAGE):$(VERSION) \
 		--tag $(HARBOR)/$(IMAGE):latest \
 		--file .docker/app/Dockerfile \
-		--no-cache .
-
-build_dev:
-	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
-		--build-arg RAILS_ENV=development \
-		--tag $(IMAGE):$(VERSION)-dev \
-		--tag $(IMAGE):dev \
-		--file .docker/app/Dockerfile.dev \
 		--no-cache .
 
 pull_db:
@@ -65,21 +58,18 @@ build_solr:
 		--file .docker/solr/Dockerfile.solr \
 		--no-cache .
 
-init_data: run_solr run_db
+up: run_solr run_db run_app
 
 run_app:
 	@docker run --name=spotlight -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
-run_dev:
-	@docker run --name=spotlight-dev -d -p 127.0.0.1:3000:3000/tcp \
-		$(DEFAULT_RUN_ARGS) \
-		-e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
-		-e "RAILS_ENV=development" \
-		$(IMAGE):dev sleep infinity
-
-reload_dev: stop_dev run_dev
+app_cli:
+	@docker run -p 127.0.0.1:3000:3000/tcp --rm -it \
+    $(DEFAULT_RUN_ARGS) \
+		--user=root \
+		$(HARBOR)/$(IMAGE):$(VERSION) bash -l
 
 repl: build_app stop_app run_app
 
@@ -94,12 +84,6 @@ run_solr:
 
 shell_app:
 	@docker exec -it spotlight bash -l
-
-shell_dev:
-	@docker exec -it spotlight-dev bash -l
-
-stop_dev:
-	@docker stop spotlight-dev
 
 start: start_solr start_db run_app
 
@@ -123,13 +107,15 @@ stop_db:
 stop_solr:
 	-docker stop solr
 
-reset_data: reset_db reset_solr
+reset: reset_app reset_db reset_solr
+
+reset_app: down_app run_app
 
 reset_db: down_db run_db
 
 reset_solr: down_solr run_solr
 
-down_all: down_app down_db down_solr
+down: down_solr down_db down_app
 
 down_app: stop_app
 	@docker rm app
@@ -155,11 +141,11 @@ shell:
 scan:
 	@if [ $(CLEAR_CACHES) == yes ]; \
 		then \
-			trivy image -c $(HARBOR)/$(IMAGE):$(VERSION); \
+			trivy $(HARBOR)/$(IMAGE):$(VERSION); \
 		fi
 	@if [ $(CI) == false ]; \
 		then \
-			trivy $(HARBOR)/$(IMAGE):$(VERSION); \
+			trivy image $(HARBOR)/$(IMAGE):$(VERSION); \
 		fi
 
 deploy: scan lint
@@ -176,3 +162,26 @@ zip:
 		Gemfile Gemfile.lock "spec/*" "vendor/*" \
 		Makefile ".circle*" "bin/*" LICENSE "README*" \
 		docker-compose.yml
+
+build_dev:
+	@docker build --build-arg RAILS_MASTER_KEY=$(RAILS_MASTER_KEY) \
+		--build-arg RAILS_ENV=development \
+		--tag $(IMAGE):$(VERSION)-dev \
+		--tag $(IMAGE):dev \
+		--file .docker/app/Dockerfile.dev \
+		--no-cache .
+
+run_dev:
+	@docker run --name=spotlight-dev -d \
+		-p 127.0.0.1:3000:3000/tcp \
+    $(DEFAULT_RUN_ARGS) \
+    -e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
+    -e "RAILS_ENV=development" \
+    --mount type=bind,source=$(CWD),target=/app \
+    $(IMAGE):dev sleep infinity
+
+shell_dev:
+	@docker exec -it spotlight-dev bash -l
+
+stop_dev:
+	-docker stop spotlight-dev

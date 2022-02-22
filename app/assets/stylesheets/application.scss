@@ -11,8 +11,9 @@
  * It is generally better to create a new file per style scope.
  */
 
-@import 'blacklight';
+@import "tul_variables";
 
+@import 'blacklight';
 @import 'blacklight_gallery';
 @import 'blacklight_oembed';
 @import 'openseadragon';

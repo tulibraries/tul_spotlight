@@ -1,0 +1,14 @@
+.btn-primary, .btn-primary:hover, .btn-primary:active {
+  // button color from Library Search
+  background-color: $dark-blue;
+  border-color: $dark-blue;
+}
+
+a:link.btn-primary, a:visited.btn-primary, a:active.btn-primary {
+  color: $white;
+}
+
+.btn-secondary {
+  color: $aged-red;
+  background-color: $white;
+}

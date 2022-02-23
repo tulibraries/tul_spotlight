@@ -1,0 +1,14 @@
+// Civil Rights in a Northern City navbar colors, adapted to Spotlight structure
+
+.navbar-logo {
+  margin-top: 0;
+}
+
+.exhibit-navbar {
+  // Color from Omeka #main-menu style
+  background-color: $aged-red !important;
+}
+
+.navbar-nav .nav-link, .image-masthead .exhibit-navbar .navbar-nav .nav-link {
+  color: $white !important;
+}

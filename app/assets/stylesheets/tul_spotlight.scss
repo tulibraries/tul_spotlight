@@ -1,19 +1,18 @@
 /* === TUL Spotlight General Styles === */
-
-// Civil Rights in a Northern City body font, omitting 12px font size
+@import "tul_variables";
 
 body {
+  // Omeka theme font, omitting 12px font size
   font: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /* -- Headings -- */
-
-// Civil Rights in a Northern City heading styles, adapted to Spotlight structure
+// Omeka heading fonts, adpated to Spotlight structure
 
 h1, h2, h3 {
   // font-weight: normal;
   font-family: 'Gill Sans', sans-serif;
-  color: #951936;
+  color: $aged-red;
 }
 
 h1.site-title, .image-masthead .h2 {
@@ -25,8 +24,8 @@ h1.site-title, .image-masthead .h2 {
 }
 
 .image-masthead .h2 {
-  text-shadow: 2px 2px 2px #951936;
-  color: white;
+  text-shadow: 2px 2px 2px $aged-red;
+  color: $white;
 }
 
 h1.page-title {
@@ -44,17 +43,21 @@ h2 {
 h3 {
   font-size: 18px;
   line-height: 18px;
-  color: #951936;
+  color: $aged-red;
 }
 
 /* -- Links -- */
-
-// Civil Rights in a Northern City link colors
+// Omeka link colors
 
 a:link, a:visited {
-  color: #951936;
+  color: $aged-red;
 }
 
 a:hover, a:active {
-  color: #D3113F;
+  color: $bright-red;
+}
+
+.list-group-item.active, .item-features .carousel-indicators .active, .item-features .carousel-indicators .active:hover {
+  background-color: $aged-red;
+  border-color: $aged-red;
 }

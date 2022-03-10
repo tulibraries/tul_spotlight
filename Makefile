@@ -18,7 +18,7 @@ SPOTLIGHT_DB_USER ?= root
 SPOTLIGHT_DB_PASSWORD ?= password
 DEV_BUNDLE_PATH ?= vendor/bundle
 CWD = $(shell pwd)
-RAILS_MASTER_KEY?=137be8c5b0a917827949d83f80bd0d23
+RAILS_MASTER_KEY ?= `cat config/master.key`
 
 DEFAULT_RUN_ARGS ?= -e "EXECJS_RUNTIME=Disabled" \
     -e "K8=yes" \
@@ -61,7 +61,7 @@ build_solr:
 up: run_solr run_db run_app
 
 run_app:
-	@docker run --name=spotlight -d -p 127.0.0.1:3000:3000/tcp \
+	@docker run --name=tul_spotlight-app -d -p 127.0.0.1:3000:3000/tcp \
 		$(DEFAULT_RUN_ARGS) \
 		$(HARBOR)/$(IMAGE):$(VERSION)
 
@@ -74,38 +74,38 @@ app_cli:
 repl: build_app stop_app run_app
 
 run_db:
-	@docker run --name=db -d -p 127.0.0.1:3306:3306 \
+	@docker run --name=tul_spotlight-db -d -p 127.0.0.1:3306:3306 \
 	  -e MARIADB_ROOT_PASSWORD=$(SPOTLIGHT_DB_ROOT_PASSWORD) \
 		bitnami/mariadb:latest
 
 run_solr:
-	@docker run --name=solr -d -p $(SOLR_PORT):8983 \
+	@docker run --name=tul_spotlight-solr -d -p $(SOLR_PORT):8983 \
 		$(HARBOR)/$(SOLR_IMAGE):$(SOLR_VERSION)
 
 shell_app:
-	@docker exec -it spotlight bash -l
+	@docker exec -it tul_spotlight-app bash -l
 
 start: start_solr start_db run_app
 
 start_app:
-	@docker start spotlight
+	@docker start tul_spotlight-app
 
 start_db:
-	@docker start db 
+	@docker start tul_spotlight-db 
 
 start_solr:
-	@docker start solr
+	@docker start tul_spotlight-solr
 
 stop: stop_app stop_db stop_solr
 
 stop_app:
-	-docker stop spotlight
+	-docker stop tul_spotlight-app
 
 stop_db:
-	-docker stop db 
+	-docker stop tul_spotlight-db 
 
 stop_solr:
-	-docker stop solr
+	-docker stop tul_spotlight-solr
 
 reset: reset_app reset_db reset_solr
 
@@ -118,13 +118,13 @@ reset_solr: down_solr run_solr
 down: down_solr down_db down_app
 
 down_app: stop_app
-	@docker rm app
+	@docker rm tul_spotlight-app
 
 down_db: stop_db
-	@docker rm db 
+	@docker rm tul_spotlight-db 
 
 down_solr: stop_solr
-	@docker rm solr
+	@docker rm tul_spotlight-solr
 
 lint:
 	@if [ $(CI) == false ]; \
@@ -172,7 +172,7 @@ build_dev:
 		--no-cache .
 
 run_dev:
-	@docker run --name=spotlight-dev -d \
+	@docker run --name=tul_spotlight-dev -d \
 		-p 127.0.0.1:3000:3000/tcp \
     $(DEFAULT_RUN_ARGS) \
     -e "BUNDLE_PATH=$(DEV_BUNDLE_PATH)" \
@@ -181,7 +181,7 @@ run_dev:
     $(IMAGE):dev sleep infinity
 
 shell_dev:
-	@docker exec -it spotlight-dev bash -l
+	@docker exec -it tul_spotlight-dev bash -l
 
 stop_dev:
-	-docker stop spotlight-dev
+	-docker stop tul_spotlight-dev
